@@ -1,5 +1,8 @@
 package com.whendada.logic.concurrency.basic;
 
+import java.util.Collection;
+import java.util.concurrent.SynchronousQueue;
+
 public class DeadLockDemo {
 
     private static final Object lockA = new Object();
