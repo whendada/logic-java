@@ -13,13 +13,18 @@ public class MyBlockingQueue<E> {
         this.limit = limit;
         this.queue = new ArrayDeque<>(limit);
     }
-
     public synchronized void put(E e) throws InterruptedException {
         while (limit == queue.size()) {
             System.out.println("queue is full");
             wait();
         }
         queue.add(e);
+        try {
+            Thread.sleep(2000);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        System.out.println(Thread.currentThread() + " : produce");
         notifyAll();
     }
 
@@ -29,12 +34,18 @@ public class MyBlockingQueue<E> {
             wait();
         }
         E e = queue.poll();
+        try {
+            Thread.sleep(2000);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        System.out.println(Thread.currentThread() + " : consume");
         notifyAll();
         return e;
     }
 
     public static void main(String[] args) throws InterruptedException {
-        MyBlockingQueue queue = new MyBlockingQueue(10);
+        MyBlockingQueue queue = new MyBlockingQueue(10000);
         Thread putThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -49,7 +60,7 @@ public class MyBlockingQueue<E> {
                 }
             }
         });
-        Thread takeThread = new Thread(new Runnable() {
+        Thread takeThread_1 = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -61,8 +72,8 @@ public class MyBlockingQueue<E> {
                 }
             }
         });
+        // 在最开始的时候需要生产者生产完才会进行消费，因为此时根本没有走到消费者，所以两个Thread不算是真正的异步
         putThread.start();
-        takeThread.start();
-
+        takeThread_1.start();
     }
 }
