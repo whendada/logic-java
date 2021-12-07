@@ -20,7 +20,7 @@ public class MyBlockingQueue<E> {
         }
         queue.add(e);
         try {
-            Thread.sleep(2000);
+            Thread.sleep(1000);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -45,35 +45,42 @@ public class MyBlockingQueue<E> {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        MyBlockingQueue queue = new MyBlockingQueue(10000);
-        Thread putThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int count = 0;
-                while (true){
+        MyBlockingQueue queue = new MyBlockingQueue(10);
+        Thread putThread;
+        Thread takeThread;
+        for (int i = 0; i < 1; i++) {
+            putThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    int count = 0;
+                    while (true){
+                        try {
+                            queue.put(count);
+                            count ++;
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
+            putThread.start();
+        }
+        for (int i = 0; i < 1; i++) {
+            takeThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
                     try {
-                        queue.put(count);
-                        count ++;
+                        while (true) {
+                            System.out.println(queue.take());
+                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
-            }
-        });
-        Thread takeThread_1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        System.out.println(queue.take());
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+            });
+            takeThread.start();
+        }
+
         // 在最开始的时候需要生产者生产完才会进行消费，因为此时根本没有走到消费者，所以两个Thread不算是真正的异步
-        putThread.start();
-        takeThread_1.start();
     }
 }
